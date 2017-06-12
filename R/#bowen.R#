@@ -1,3 +1,12 @@
+require('RMySQL')
+require('xts')
+require('lattice')
+require('numDeriv')
+require('stats')
+require('ggplot2')
+require('reshape2')
+require('scales')
+
 #' pressure used for calculating psychrometric constant in kPa
 #' @export
 p_coruche <- function()
@@ -79,30 +88,26 @@ H <- function(le,B)
 
 
 
-#' virtual temperature after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS)
-#' @export
 Tvirtual <- function(T,Q) #virtual temperature
     {
         Tv <- T*(1+0.61*Q)
         return(Tv)
     }
 
-#' specific humidity Mw/(Md+Mw) where Md is mass of dry air and Mw is mass of water vapour. to a good approximation Q=mw*ev/md*p where ma and mw are the mean molecular masses. After Arya, S. P. (2001) Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS
-#' @param ev is water vapour pressure
-#' @param p is total pressure.
-#' @export
-Q <- function(ev,p) 
+
+Q <- function(ev,p) #specific humidity Mw/(Md+Mw) where Md is mass of dry air and Mw is mass of water vapour
     {
+# ev is water vapour pressure and p is total pressure. to a good approximation Q=mw*ev/md*p where ma and mw are the mean molecular masses
         Q <- 0.622*ev/p # approximation 
         return(Q)
+
+  #      after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS)) ))
     }
 
-#' potential temperature,  k=R/cp, after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS))
-#' @export
-O <- function(T,p) 
+O <- function(T,p) #potential temperature
     {
         p0 <- 1000 #in mbar
-        k <- 0.286 
+        k <- 0.286 # k=R/cp, after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS))
         O <- T*(p0/p)^k
         return(O)
     }
