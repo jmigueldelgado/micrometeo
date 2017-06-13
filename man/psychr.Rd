@@ -5,7 +5,7 @@
 \title{psychrometric constant in kPa/K for local pressure conditions
 check http://www.fao.org/docrep/X0490E/x0490e07.htm#psychrometric%20constant%20(g)}
 \usage{
-psychr()
+psychr(p)
 }
 \description{
 psychrometric constant in kPa/K for local pressure conditions

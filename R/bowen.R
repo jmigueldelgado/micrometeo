@@ -38,12 +38,58 @@ mass_density_h2o <- function()
 #' psychrometric constant in kPa/K for local pressure conditions
 #' check http://www.fao.org/docrep/X0490E/x0490e07.htm#psychrometric%20constant%20(g)
 #' @export
-psychr <- function()
+psychr <- function(p)
     {
-        psy <- spec_heat()*p_coruche()/(ratio_mol_w()*latent_heat_vap())
+        psy <- spec_heat()*p/(ratio_mol_w()*latent_heat_vap())
         return(psy)
     }
 
+#' vapour pressure at saturation in kPa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.20
+#' @param T in [K]
+#' @param esat in [kPa]
+#' @export
+sat_vpressure <- function(T)
+{
+    esat <- 0.6112*exp(17.62*(T-273.15)/(-0.53+T))
+    return(esat)
+}
+
+#' vapour pressure in Pa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.19
+#' @param q in [kg.kg^-1]
+#' @param p in kPa
+#' @param e in kPa
+#' @export
+specific_hum2vpressure <- function(q,p)
+{
+    e <- q*p*8/5
+    return(e)
+}
+
+#' vapour pressure from wet bulb after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 354
+#' @param Twet in [K]
+#' @param Tdry in [K]
+#' @param p in kPa
+#' @export
+wetbulb2vpressure <- function(Twet,Tdry,p)
+    {
+        e <- sat_vpressure(Twet)-psychr(p)*(Tdry-Twet)
+        #in kPa
+#        e <- 6.108*exp(17.27*Twet/(Twet+237.3)) #after WMO http://www.fao.org/docrep/x0490e/x0490e07.htm in hPa (originally in kPa)
+        
+        return(e) #hPa
+    }
+
+
+
+#' relative humidity after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 352
+#' @param q in [kg.kg^-1]
+#' @param p in Pa
+#' @param T in [K]
+#' @export
+specific_hum2rh <- function(q,T,p)
+{    
+    return(specific_hum2vpressure(q,p)/sat_vpressure(T))
+}
 
 #' bowen ratio
 #' @export
@@ -189,14 +235,6 @@ heatCapacity <- function(xw,xorg,xsolid) #this is the volumetric heat capacity!!
         return(Cs*1e6) #unit in J/m3/K
     }
 
-sat_vpressure <- function(T)
-    {
-        es <- 0.6108*exp(17.27*T/(T+237.3)) #http://www.fao.org/docrep/x0490e/x0490e07.htm in kPa
-        #es <- 6.112*exp(17.62*T/(243.12+T)) #from Magnus-Formel (hier nach Sonntag 1990, siehe Literatur) http://de.wikipedia.org/wiki/S%C3%A4ttigungsdampfdruck#Literatur
-        #es <- 6.11*10^(7.5*T/(237.3+T)) #http://www.srh.noaa.gov/images/epz/wxcalc/vaporPressure.pdf
-        return(es)
-       #in hPa
-    }
 
 slope_sat_vpressure <- function(T)
     {
@@ -204,14 +242,6 @@ slope_sat_vpressure <- function(T)
         return(D) #in kPa
     }
 
-vpressure <- function(Twet,Tdry)
-    {
-        e <- sat_vpressure(Twet)-psychr(pressure)*(Tdry-Twet)
-        #in kPa
-#        e <- 6.108*exp(17.27*Twet/(Twet+237.3)) #after WMO http://www.fao.org/docrep/x0490e/x0490e07.htm in hPa (originally in kPa)
-        
-        return(e) #hPa
-    }
 
 xts2df <- function(xtsObj)
     {
