@@ -4,7 +4,7 @@
 \alias{bowen}
 \title{bowen ratio}
 \usage{
-bowen(Ta2, Ta1, ev2, ev1)
+bowen(Ta2, Ta1, ev2, ev1, p)
 }
 \description{
 bowen ratio
