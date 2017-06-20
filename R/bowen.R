@@ -1,3 +1,12 @@
+
+#' thermal diffusivity in m^2/s. Table in page 50 of Moene and van Dam, "Transport in the Atmosphere-Vegetation-Soil Continuum "
+#' @export
+thermal_diff <- function()
+{
+    return(1.2*10^-6)
+}
+
+
 #' pressure used for calculating psychrometric constant in kPa
 #' @export
 p_coruche <- function()
@@ -50,6 +59,7 @@ psychr <- function(p)
 #' @export
 sat_vpressure <- function(T)
 {
+    T <- T+273.15
     esat <- 0.6112*exp(17.62*(T-273.15)/(-0.53+T))
     return(esat)
 }
@@ -65,18 +75,15 @@ specific_hum2vpressure <- function(q,p)
     return(e)
 }
 
-#' vapour pressure from wet bulb after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 354
+#' vapour pressure in kPa from wet bulb after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 354
 #' @param Twet in [K]
 #' @param Tdry in [K]
 #' @param p in kPa
 #' @export
-wetbulb2vpressure <- function(Twet,Tdry,p)
+wetbrh2ulb2vpressure <- function(Twet,Tdry,p)
     {
-        e <- sat_vpressure(Twet)-psychr(p)*(Tdry-Twet)
-        #in kPa
-#        e <- 6.108*exp(17.27*Twet/(Twet+237.3)) #after WMO http://www.fao.org/docrep/x0490e/x0490e07.htm in hPa (originally in kPa)
-        
-        return(e) #hPa
+        e <- sat_vpressure(Twet)-psychr(p)*(Tdry-Twet)     #psychr is in kPa/K
+        return(e)
     }
 
 
@@ -91,11 +98,21 @@ specific_hum2rh <- function(q,T,p)
     return(specific_hum2vpressure(q,p)/sat_vpressure(T))
 }
 
+#' relative humidity to vapour pressure
+#' @param rh in [-]
+#' @param T in [K]
+#' @export
+rh2vpressure <- function(rh,T)
+{    
+    return(rh*sat_vpressure(T))
+}
+
+
 #' bowen ratio
 #' @export
-bowen <- function(Ta2,Ta1,ev2,ev1)
+bowen <- function(Ta2,Ta1,ev2,ev1,p)
 {
-    B <- psychr()*(Ta1-Ta2)/(ev1-ev2)
+    B <- psychr(p)*(Ta1-Ta2)/(ev1-ev2)
     return(B)
 }
 
@@ -152,6 +169,18 @@ O <- function(T,p)
         O <- T*(p0/p)^k
         return(O)
     }
+
+#' volumetric heat capacity of a soil. From the encyclopedia of soil science, page 306. Unit is J.m^-3.K^-1
+#' @param xw is the volumetric water content
+#' @param xorg is the organic carbon content of the soil
+#' @param xsolid is the mineral content of the soil
+#' @export
+vol_heat_capacity_soil <- function(xw,xorg,xsolid) #this is the volumetric heat capacity!!! organic content in soil xorg and water content xw and mineral content xsolid
+    {
+        Cs <- 2.45*xsolid+2.45*xorg+4.186*xw 
+        return(Cs*1e6)
+    }
+
 
 
 richardson <- function(Ri_in)
@@ -229,11 +258,6 @@ getEVAP_PT <- function(param,t0,tf,station)
         return(paramts)
     }
 
-heatCapacity <- function(xw,xorg,xsolid) #this is the volumetric heat capacity!!! organic content in soil xorg and water content xw and mineral content xsolid
-    {
-        Cs <- 2.45*xsolid+2.45*xorg+4.186*xw #from the encyclopedia of soil science, page 306 unit is MJ.m^-3.K^-1
-        return(Cs*1e6) #unit in J/m3/K
-    }
 
 
 slope_sat_vpressure <- function(T)

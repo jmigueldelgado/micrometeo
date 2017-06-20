@@ -10,7 +10,7 @@ Twet2 <- getEVAP_PT('Temp_Wet_TOP',t0,tf,station)
 Twet1 <- getEVAP_PT('Temp_Wet_BOTTOM',t0,tf,station)
 Tdry2 <- getEVAP_PT('Temp_Dry_TOP',t0,tf,station)
 Tdry1 <- getEVAP_PT('Temp_Dry_BOTTOM',t0,tf,station) 
-theta <- getEVAP_PT('Soil_Moisture',t0,tf,station)
+#theta <- getEVAP_PT('Soil_Moisture',t0,tf,station)
 SoilTemp <- getEVAP_PT('Soil_Temp',t0,tf,station)
 
 V1 <- getEVAP_PT('wind_BOTTOM',t0,tf,station)
