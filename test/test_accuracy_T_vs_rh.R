@@ -1,3 +1,4 @@
+#install_git("https://github.com/jmigueldelgado/micrometeo.git")
 require(micrometeo)
 require(plyr)
 require(data.table)
@@ -72,7 +73,7 @@ rh <- specific_hum2rh(q,Tdry,p_coruche())
 
 k <- 70 #midday in february 2017
 
-
+p <- p_coruche()
 k <- 1
 er <- data.frame(accuracy_multiplier=seq(-2,2,0.1),T=Tdry[k],err_T=abs(wetbulb2vpressure(Twet[k]+seq(-0.2,0.2,0.01),Tdry[k],p)-wetbulb2vpressure(Twet[k],Tdry[k],p)),err_rh=abs(rh2vpressure(rh[k]+seq(-0.02,0.02,0.001),Tdry[k])-rh2vpressure(rh[k],Tdry[k])))
 

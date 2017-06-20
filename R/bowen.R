@@ -80,7 +80,7 @@ specific_hum2vpressure <- function(q,p)
 #' @param Tdry in [K]
 #' @param p in kPa
 #' @export
-wetbrh2ulb2vpressure <- function(Twet,Tdry,p)
+wetbulb2vpressure <- function(Twet,Tdry,p)
     {
         e <- sat_vpressure(Twet)-psychr(p)*(Tdry-Twet)     #psychr is in kPa/K
         return(e)
