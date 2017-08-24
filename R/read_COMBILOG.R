@@ -1,6 +1,7 @@
 #' read logger file from theodor friedrichs
 #' @import dplyr
 #' @import readr
+#' @import lubridate
 #' @param path is the absolute path to the logger file
 #' @export
 read_COMBILOG <- function(path)
