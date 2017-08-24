@@ -1,0 +1,2 @@
+#' read logger file from theodor friedrichs
+#' @param path is the absolute path to the logger file
