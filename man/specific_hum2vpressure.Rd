@@ -9,9 +9,9 @@ specific_hum2vpressure(q, p)
 \arguments{
 \item{q}{in [kg.kg^-1]}
 
-\item{p}{in kPa}
+\item{p}{in [Pa]}
 
-\item{e}{in kPa}
+\item{e}{in [Pa]}
 }
 \description{
 vapour pressure in Pa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.19
