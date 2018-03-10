@@ -60,14 +60,14 @@ psychr <- function(p)
 sat_vpressure <- function(T)
 {
     T <- T+273.15
-    esat <- 0.6112*exp(17.62*(T-273.15)/(-0.53+T))
+    esat <- 0.6112*exp(17.62*(T-273.15)/(-30.03+T))
     return(esat)
 }
 
 #' vapour pressure in Pa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.19
 #' @param q in [kg.kg^-1]
-#' @param p in kPa
-#' @param e in kPa
+#' @param p in [Pa]
+#' @param e in [Pa]
 #' @export
 specific_hum2vpressure <- function(q,p)
 {
