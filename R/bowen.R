@@ -18,7 +18,7 @@ p_coruche <- function()
 #' @export
 latent_heat_vap <- function()
 {
-    return(2.45) 
+    return(2.45)
 }
 
 #' ratio molecular weight of water vapour/dry air = 0.622
@@ -36,13 +36,13 @@ spec_heat <- function()
     return(1.013*10^-3)
 }
 
-#' mass density of water (rho) in kg/m3 
+#' mass density of water (rho) in kg/m3
 #' @export
 mass_density_h2o <- function()
 {
-    return(999) 
+    return(999)
 }
- 
+
 
 #' psychrometric constant in kPa/K for local pressure conditions
 #' check http://www.fao.org/docrep/X0490E/x0490e07.htm#psychrometric%20constant%20(g)
@@ -63,6 +63,17 @@ sat_vpressure <- function(T)
     esat <- 0.6112*exp(17.62*(T-273.15)/(-30.03+T))
     return(esat)
 }
+
+
+
+#' slope of the saturation vapour pressure-temperature relationship, from Allen et al, FAO crop water requirements (1998)
+#' @param T
+slope_sat_vpressure <- function(T)
+    {
+        D <- 4098*(0.6108*exp(17.27*T/(T+237.3)))/(T+237.3)^2
+        return(D) #in kPa
+    }
+
 
 #' vapour pressure in Pa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.19
 #' @param q in [kg.kg^-1]
@@ -94,7 +105,7 @@ wetbulb2vpressure <- function(Twet,Tdry,p)
 #' @param T in [K]
 #' @export
 specific_hum2rh <- function(q,T,p)
-{    
+{
     return(specific_hum2vpressure(q,p)/sat_vpressure(T))
 }
 
@@ -103,7 +114,7 @@ specific_hum2rh <- function(q,T,p)
 #' @param T in [K]
 #' @export
 rh2vpressure <- function(rh,T)
-{    
+{
     return(rh*sat_vpressure(T))
 }
 
@@ -132,7 +143,7 @@ LE <- function(R,dQdt,G,B)
     return(le)
 }
 
-#' sensible heat flux from bowen ratio 
+#' sensible heat flux from bowen ratio
 #' @export
 H <- function(le,B)
 {
@@ -154,18 +165,18 @@ Tvirtual <- function(T,Q) #virtual temperature
 #' @param ev is water vapour pressure
 #' @param p is total pressure.
 #' @export
-Q <- function(ev,p) 
+Q <- function(ev,p)
     {
-        Q <- 0.622*ev/p # approximation 
+        Q <- 0.622*ev/p # approximation
         return(Q)
     }
 
 #' potential temperature,  k=R/cp, after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS))
 #' @export
-O <- function(T,p) 
+O <- function(T,p)
     {
         p0 <- 1000 #in mbar
-        k <- 0.286 
+        k <- 0.286
         O <- T*(p0/p)^k
         return(O)
     }
@@ -177,7 +188,7 @@ O <- function(T,p)
 #' @export
 vol_heat_capacity_soil <- function(xw,xorg,xsolid) #this is the volumetric heat capacity!!! organic content in soil xorg and water content xw and mineral content xsolid
     {
-        Cs <- 2.45*xsolid+2.45*xorg+4.186*xw 
+        Cs <- 2.45*xsolid+2.45*xorg+4.186*xw
         return(Cs*1e6)
     }
 
@@ -193,7 +204,7 @@ richardson <- function(Ri_in)
         z1 <- Ri_in$z1
         z2 <- Ri_in$z2
         Tv <- Ri_in$Tv
-        
+
         g <- 9.8
         num <- (Ov1-Ov2) / abs(z1-z2)
         den <- ((v1-v2)/(z1-z2))^2
@@ -231,39 +242,6 @@ sync <- function(syncTS,TS)
         tmp4 <- merge(tmp3,tmp,join='inner')
         TS <- tmp4[,1]
         return(TS)
-    }
-
-
-
-
-
-getGolm <- function(param,t0,tf,station)
-    {
-        query <- paste0("SELECT SampleTimeStart,SampleValue FROM TBL_Sample WHERE LocatID='",station,"' AND ParamID='",param,"' AND SampleTimeStart>'",t0,"' AND SampleTimeEnd<'",tf,"';")
-        rs <- dbSendQuery(con, query)
-        d1 <- fetch(rs,n=-1)
-        paramts <- xts(d1[,2],order.by=as.POSIXct(d1[,1]))
-        dbClearResult(dbListResults(con)[[1]])
-        return(paramts)
-    }
-
-
-getEVAP_PT <- function(param,t0,tf,station)
-    {
-        query <- paste0("SELECT SampleTimeStart,SampleValue FROM TBL_Sample WHERE LocatID='",station,"' AND ParamID='",param,"' AND SampleTimeStart>'",t0,"' AND SampleTimeEnd<'",tf,"';")
-        rs <- dbSendQuery(con, query)
-        d1 <- fetch(rs,n=-1)
-        paramts <- xts(d1[,2],order.by=as.POSIXct(d1[,1]))
-        dbClearResult(dbListResults(con)[[1]])
-        return(paramts)
-    }
-
-
-
-slope_sat_vpressure <- function(T)
-    {
-        D <- 4098*(0.6108*exp(17.27*T/(T+237.3)))/(T+237.3)^2
-        return(D) #in kPa
     }
 
 
@@ -333,7 +311,7 @@ replaceDailyIntoXts <- function(xtsObj,xtsWorm)
         index(xtsWorm) <- as.POSIXct(trunc(index(xtsWorm),"days"))
         subset <- as.data.frame(index(xtsWorm))
         t <- apply(subset,1,strftime)
-        
+
         for(i in t)
             {
                                   #as.Date(eval(parse(text=paste0("index(",substitute(xtsWorm),"['",strftime(subset[i]),"'])"))))
@@ -350,7 +328,7 @@ detectLargeVaporPressureDeficit <- function(ev)
   #      error1 <- index(Tdiff1[Tdiff1 < 0.1]) #if difference between wet and dry temperature is less than 0.1 degree replace value by NA
    #     error2 <- index(Tdiff2[Tdiff2 < 0.1])
         dev <- abs(ev$ev1-ev$ev2)
-        error <- index(dev[dev>4])        
+        error <- index(dev[dev>4])
         daily  <- trunc(error,"days")
         return(daily)
     }
@@ -365,7 +343,7 @@ if(FALSE)
 ShuttlWallUnder <- function(param)
     {
         #this is the Shuttleworth and Wallace equation for evapotranspiration from the understorey. check page 38 of Güntner, A. (2002). Large-Scale Hydrological Modelling in the Semi-Arid North-East of Brazil. University of Potsdam.Güntner, A. (2002). Large-Scale Hydrological Modelling in the Semi-Arid North-East of Brazil. University of Potsdam.
-        
+
         E <- (t/lambda)*(delta*As+rho*cp*Dm/rsa)/(delta+psych*(1+rss/rsa))
         return(E)
     }
@@ -375,7 +353,7 @@ ShuttlWallUnder <- function(param)
 
 full_data <- function(met_data)
     {
-        
+
         prec <- makeHourly(met_data$prec,"sum")
         R <- makeHourly(met_data$R,"mean")
         b <- makeHourly(met_data$B,"mean")
@@ -389,7 +367,7 @@ full_data <- function(met_data)
         b <- replaceDayForNA(b,vpdday[vpdday<0.1])
 
         vpd <- replaceDayForNA(vpd,vpdday[vpdday<0.1])
-        
+
         ev <- makeHourly(met_data$ev,"mean")
         ev <- replaceDayForNA(ev,vpdday[vpdday<0.1])
 
@@ -397,20 +375,20 @@ full_data <- function(met_data)
         u <- replaceDayForNA(u,vpdday[vpdday<0.1])
 
         Td <- apply.daily(met_data$T,"mean")
-        
-        
-        R[R < -500] <- NA 
+
+
+        R[R < -500] <- NA
         R[R > 1500] <- NA
-        
-        
+
+
         le <- LE(R,dQdt,G,b)
         h <- H(le,b)
 
-        le[le < -1500] <- NA 
+        le[le < -1500] <- NA
         le[le > 1500] <- NA
-        h[h < -1500] <- NA 
+        h[h < -1500] <- NA
         h[h > 1500] <- NA
-              
+
         evap <- ET(le,rho,lambda)*3600*1000 #in mm
         evap[evap<0] <- NA
 
@@ -421,7 +399,7 @@ full_data <- function(met_data)
 
 hydro_data <- function(met_data)
     {
-        
+
         prec <- makeHourly(met_data$prec,"sum")
         R <- makeHourly(met_data$R,"mean")
         b <- makeHourly(met_data$B,"mean")
@@ -430,19 +408,19 @@ hydro_data <- function(met_data)
         theta <- makeHourly(met_data$theta,"mean")
         T <- makeHourly(met_data$T,"mean")
         Td <- apply.daily(met_data$T,"mean")
-                
-        R[R < -500] <- NA 
+
+        R[R < -500] <- NA
         R[R > 1500] <- NA
-        
-        
+
+
         le <- LE(R,dGdt,G,b)
         h <- H(le,b)
 
-        le[le < -1500] <- NA 
+        le[le < -1500] <- NA
         le[le > 1500] <- NA
-        h[h < -1500] <- NA 
+        h[h < -1500] <- NA
         h[h > 1500] <- NA
-        
+
         evap <- ET(le,rho,lambda)*3600*1000 #in mm
         evap[evap<0] <- NA
 
@@ -453,7 +431,7 @@ hydro_data <- function(met_data)
 
 simple_data <- function(met_data)
     {
-        
+
         prec <- makeHourly(met_data$prec,"sum")
         R <- makeHourly(met_data$R,"mean")
         b <- makeHourly(met_data$B,"mean")
@@ -462,47 +440,46 @@ simple_data <- function(met_data)
         theta <- makeHourly(met_data$theta,"mean")
         T <- makeHourly(met_data$T,"mean")
         Td <- apply.daily(met_data$T,"mean")
-        
+
 #        index(Td) <- as.POSIXct(trunc(index(Td),"days"))
 #        Tdaily <- replaceDailyIntoXts(T,Td)
-        
-        R[R < -500] <- NA 
+
+        R[R < -500] <- NA
         R[R > 1500] <- NA
-        
-        
+
+
         le <- LE(R,dGdt,G,b)
         h <- H(le,b)
 
-        le[le < -1500] <- NA 
+        le[le < -1500] <- NA
         le[le > 1500] <- NA
-        h[h < -1500] <- NA 
+        h[h < -1500] <- NA
         h[h > 1500] <- NA
-        
+
         evap <- ET(le,rho,lambda)*3600*1000 #in mm
         evap[evap<0] <- NA
 
         met_simple <- merge(R,T,evap)
-        
+
         return(met_simple)
     }
 
 soil_data <- function(met_data)
     {
-        
+
         prec <- makeHourly(met_data$prec,"sum")
         G <- makeHourly(met_data$G,"mean")
         dGdt <- makeHourly(met_data$dGdt,"mean")
         theta <- makeHourly(met_data$theta,"mean")
         T <- makeHourly(met_data$T,"mean")
         Td <- apply.daily(met_data$T,"mean")
-        
+
         index(Td) <- as.POSIXct(trunc(index(Td),"days"))
         Tdaily <- replaceDailyIntoXts(T,Td)
-                        
- 
+
+
         met_soil <- merge(prec,G,dGdt,theta,Tdaily)
         colnames(met_soil) <- c("Prec","G","dGdt","theta","Td")
-        
+
         return(met_soil)
     }
-
