@@ -14,6 +14,14 @@ p_coruche <- function()
     return(101.5)
 }
 
+#' specific gas constant in kJ.kg^-1.K^-1
+#' @export
+spec_gas_const = function()
+{
+  return(0.287)
+}
+
+
 #' latent heat of vaporization (lambda) at normal pressure MJ/kg
 #' @export
 latent_heat_vap <- function()
