@@ -14,19 +14,19 @@ p_coruche <- function()
     return(101.5)
 }
 
-#' specific gas constant in kJ.kg^-1.K^-1
+#' specific gas constant in J.kg^-1.K^-1
 #' @export
 spec_gas_const = function()
 {
-  return(0.287)
+  return(287)
 }
 
 
-#' latent heat of vaporization (lambda) at normal pressure MJ/kg
+#' latent heat of vaporization (lambda) at normal pressure J/kg
 #' @export
 latent_heat_vap <- function()
 {
-    return(2.45)
+    return(2.45*10^6)
 }
 
 #' ratio molecular weight of water vapour/dry air = 0.622
@@ -36,12 +36,12 @@ ratio_mol_w <- function()
     return(0.622)
 }
 
-#' specific heat cp at constant pressure MJ*kg^-1*degreeC^-1
+#' specific heat cp at constant pressure J*kg^-1*degreeC^-1
 #' @export
 spec_heat <- function()
 {
 
-    return(1.013*10^-3)
+    return(1.013*10^3)
 }
 
 #' mass density of water (rho) in kg/m3
@@ -67,7 +67,6 @@ psychr <- function(p)
 #' @export
 sat_vpressure <- function(T)
 {
-    T <- T+273.15
     esat <- 0.6112*exp(17.62*(T-273.15)/(-30.03+T))
     return(esat)
 }
@@ -75,12 +74,14 @@ sat_vpressure <- function(T)
 
 
 #' slope of the saturation vapour pressure-temperature relationship, from Allen et al, FAO crop water requirements (1998)
-#' @param T
+#' @param T in K
+#' @export
 slope_sat_vpressure <- function(T)
-    {
-        D <- 4098*(0.6108*exp(17.27*T/(T+237.3)))/(T+237.3)^2
-        return(D) #in kPa
-    }
+{
+    T = T-273.15
+    D <- 4098*(0.6108*exp(17.27*T/(T+237.3)))/(T+237.3)^2
+    return(D) #in kPa/degree C
+}
 
 
 #' vapour pressure in Pa after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 353 eq B.19
@@ -123,7 +124,7 @@ specific_hum2rh <- function(q,T,p)
 #' @export
 rh2vpressure <- function(rh,T)
 {
-    return(rh*sat_vpressure(T))
+    return(rh*sat_vpressure(T)) ## in kPa
 }
 
 
@@ -137,9 +138,12 @@ bowen <- function(Ta2,Ta1,ev2,ev1,p)
 
 #' ET from latent heat flux (le) in mm
 #' @export
-ET <- function(le,rho)
+ET <- function(le)
 {
-    et <- le/(rho*latent_heat_vap())
+    ## mass_density_h2o kg.m-3
+    ## latent_heat_vap J.kg-1
+    ## le W
+    et <- 1000*le/(mass_density_h2o()*latent_heat_vap())
     return(et)
 }
 

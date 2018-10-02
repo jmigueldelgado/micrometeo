@@ -4,7 +4,7 @@
 \alias{ET}
 \title{ET from latent heat flux (le) in mm}
 \usage{
-ET(le, rho)
+ET(le)
 }
 \description{
 ET from latent heat flux (le) in mm

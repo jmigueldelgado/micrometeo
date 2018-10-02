@@ -2,10 +2,10 @@
 % Please edit documentation in R/bowen.R
 \name{spec_heat}
 \alias{spec_heat}
-\title{specific heat cp at constant pressure MJ*kg^-1*degreeC^-1}
+\title{specific heat cp at constant pressure J*kg^-1*degreeC^-1}
 \usage{
 spec_heat()
 }
 \description{
-specific heat cp at constant pressure MJ*kg^-1*degreeC^-1
+specific heat cp at constant pressure J*kg^-1*degreeC^-1
 }
