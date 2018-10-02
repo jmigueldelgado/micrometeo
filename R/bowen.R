@@ -1,4 +1,12 @@
 
+#' returns the von Karman constant
+#' @export
+vonKarman <- function()
+{
+    return(0.41)
+}
+
+
 #' thermal diffusivity in m^2/s. Table in page 50 of Moene and van Dam, "Transport in the Atmosphere-Vegetation-Soil Continuum "
 #' @export
 thermal_diff <- function()
