@@ -171,6 +171,19 @@ rh2vpressure <- function(rh,T)
     return(rh*sat_vpressure(T)) ## in kPa
 }
 
+#' relative humidity to specific humidity
+#' @param rh in [-]
+#' @param T in [K]
+#' @param p in kPa
+#' @export
+rh2specific_hum <- function(rh,T,p)
+{
+    if(rh>1) rh <- 0.01*rh
+
+    e <- rh*sat_vpressure(T)
+    q <- vpressure2specific_hum(e,p)
+    return(q)
+}
 
 
 #' bowen ratio
