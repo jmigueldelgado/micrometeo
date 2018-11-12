@@ -4,7 +4,12 @@
 \alias{Tvirtual}
 \title{virtual temperature after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS)}
 \usage{
-Tvirtual(T, Q)
+Tvirtual(T, q)
+}
+\arguments{
+\item{T}{is air temperature in K}
+
+\item{q}{is specific humidity}
 }
 \description{
 virtual temperature after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS)

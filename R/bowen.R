@@ -22,12 +22,12 @@ p_coruche <- function()
     return(101.5)
 }
 
-#' specific gas constant in J.kg^-1.K^-1
-#' @export
-spec_gas_const = function()
-{
-  return(287)
-}
+## specific gas constant in J.kg^-1.K^-1
+## export
+#spec_gas_const = function()
+#{
+#  return(287)
+#}
 
 
 #' latent heat of vaporization (lambda) at normal pressure J/kg
@@ -44,6 +44,17 @@ ratio_mol_w <- function()
     return(0.622)
 }
 
+#' specific heat capacity of air at constant pressure
+#' @param q is specific humidity [kg.kg-1]
+#' @export
+spec_heat_cp_air <- function(q)
+{
+    cp <- 1004*(1+0.84*q)
+    return(cp)
+}
+
+
+
 #' specific heat cp at constant pressure J*kg^-1*degreeC^-1
 #' @export
 spec_heat <- function()
@@ -59,6 +70,18 @@ mass_density_h2o <- function()
     return(999)
 }
 
+#' mass density of air (rho) in kg/m3
+#' @export
+mass_density_air <- function(T,q,p)
+{
+    Tv=Tvirtual(T,q)
+    R=287
+    rho=1000*p/(R*Tv)
+    return(rho)
+}
+
+
+
 
 #' psychrometric constant in kPa/K for local pressure conditions
 #' check http://www.fao.org/docrep/X0490E/x0490e07.htm#psychrometric%20constant%20(g)
@@ -66,6 +89,9 @@ mass_density_h2o <- function()
 psychr <- function(p)
     {
         psy <- spec_heat()*p/(ratio_mol_w()*latent_heat_vap())
+##       alternative from meoene
+##       psy <- 65.5*((1+0.84*q)/(1-0.00095*(T-273.15)))*(p*1000/101300) # from moene and van dam
+
         return(psy)
     }
 
@@ -78,8 +104,6 @@ sat_vpressure <- function(T)
     esat <- 0.6112*exp(17.62*(T-273.15)/(-30.03+T))
     return(esat)
 }
-
-
 
 #' slope of the saturation vapour pressure-temperature relationship, from Allen et al, FAO crop water requirements (1998)
 #' @param T in K
@@ -102,6 +126,18 @@ specific_hum2vpressure <- function(q,p)
     e <- q*p*8/5
     return(e)
 }
+
+#' specific humidity from vapour pressure in kg.kg-1 from formula above
+#' @param e in [Pa]
+#' @param p in [Pa]
+#' @return q in [kg.kg^-1]
+#' @export
+vpressure2specific_hum <- function(e,p)
+{
+    q <- e/(p*8/5)
+    return(q)
+}
+
 
 #' vapour pressure in kPa from wet bulb after Moene and Van Dam Cambridge University Press 2014 "Transport in the Atmosphere-Vegetation-Soil Continuum " page 354
 #' @param Twet in [K]
@@ -133,6 +169,20 @@ specific_hum2rh <- function(q,T,p)
 rh2vpressure <- function(rh,T)
 {
     return(rh*sat_vpressure(T)) ## in kPa
+}
+
+#' relative humidity to specific humidity
+#' @param rh in [-]
+#' @param T in [K]
+#' @param p in kPa
+#' @export
+rh2specific_hum <- function(rh,T,p)
+{
+    if(rh>1) rh <- 0.01*rh
+
+    e <- rh*sat_vpressure(T)
+    q <- vpressure2specific_hum(e,p)
+    return(q)
 }
 
 
@@ -174,10 +224,12 @@ H <- function(le,B)
 
 
 #' virtual temperature after Arya, S. P. (2001). Introduction to Micrometeorology. International Geophysics Series (Vol. 79, p. 420). San Diego: Academic Press. doi:10.4043/13298-MS)
+#' @param T is air temperature in K
+#' @param q is specific humidity
 #' @export
-Tvirtual <- function(T,Q) #virtual temperature
+Tvirtual <- function(T,q) #virtual temperature
     {
-        Tv <- T*(1+0.61*Q)
+        Tv <- T*(1+0.61*q)
         return(Tv)
     }
 
