@@ -1,0 +1,122 @@
+---
+title: "Lake evaporation example"
+author: "JM Delgado"
+date: "`r Sys.Date()`"
+output: rmarkdown::github_document
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Get input data if necessary
+```{r, results='asis'}
+getwd()
+setwd('/home/delgado/proj/micrometeo/data')
+library(scraping)
+coor <- data.frame(lon=c(13.40),lat=c(52.52))
+var <- c('temperature','relative humidity','u wind','v wind','net radiation')
+years <- c('2000')
+request <- def_request(coor,var,years)
+knitr::kable(request)
+get_nc(request)
+nc2rds(request)
+
+get_nc_meta(request,var[3])
+
+```
+
+## Load input data
+```{r, results='asis'}
+library(scraping)
+library(dplyr)
+library(lubridate)
+
+lookup=lookup_var(request$variable)
+
+lookup %>% knitr::kable()
+
+myproj='/home/delgado/proj/micrometeo'
+temp=readRDS(paste0(myproj,'/data/',lookup$varname[1],'.rds'))
+rhum=readRDS(paste0(myproj,'/data/',lookup$varname[2],'.rds'))
+u=readRDS(paste0(myproj,'/data/',lookup$varname[3],'.rds'))
+v=readRDS(paste0(myproj,'/data/',lookup$varname[4],'.rds'))
+Rn=readRDS(paste0(myproj,'/data/',lookup$varname[5],'.rds'))
+
+temp=temp %>%
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var))
+
+rh=rhum %>%
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var))
+
+u=u %>%
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var))
+
+v=v %>%
+    group_by(day=floor_date(time,"day"),lon,lat) %>%
+    summarise(daily_max=max(value),daily_min=min(value),daily_mean=mean(value),var=first(var))
+
+w_value  = data_frame(daily_mean=(v$daily_mean^2+u$daily_mean^2)^0.5)
+
+w = u %>%
+    select(day,lon,lat) %>%
+    bind_cols(.,w_value)
+
+```
+
+## Prepare input data
+Temperature:
+```{r, results='asis'}
+input = temp %>%
+    select(day,lon,lat,daily_mean,daily_max,daily_min) %>%
+    rename(T=daily_mean)
+```
+Surface level pressure in kPa:
+```{r, results='asis'}
+p=100
+```
+
+Specific humidity:
+```{r, results='asis'}
+input = input %>%
+    col_bind(.,select(rh,daily_mean)) %>%
+    mutate(q = rh2specific_hum(daily_mean,T,p)) %>%
+    select(-daily_mean)
+```
+
+Vapor pressure deficit:
+```{r, results='asis'}
+input = input %>%
+    mutate(vpd=sat_vpressure(T)-specific_hum2vpressure(q,p))
+```
+
+Net radiation:
+```{r, results='asis'}
+input = input %>%
+    col_bind(.,select(Rn,value)) %>%
+    rename(Rn=value)
+```
+
+Soil heat flux:
+```{r, results='asis'}
+input = input %>%
+    mutate(G=0)
+```
+
+Aerodynamic resistance:  
+```{r, results='asis'}
+input = input %>%
+    col_bind(.,select(w,daily_mean)) %>%
+    mutate(ra=res_aero(daily_mean,))
+
+```
