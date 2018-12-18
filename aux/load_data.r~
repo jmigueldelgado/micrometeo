@@ -1,0 +1,2 @@
+require(readr)
+z0 <- read_csv("../data/z0",col_types=c('character','numeric','numeric'))

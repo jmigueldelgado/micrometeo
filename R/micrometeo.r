@@ -16,7 +16,30 @@ get_d <- function(surface)
     return(d)
 }
 
+#' accelaration of gravity
+#' @export
+g_acceleration <- function()
+{
+    return(9.8)
+}
 
+#' Specific flux of virtual sensible heat
+#' from Katul and Parlange 1992 WWR
+#' @export
+virtual_H <- function(H,LE,Ta,q)
+{
+    return(H+0.61*Ta*spec_heat_cp_air(q)*LE)
+}
+
+#' Obukhov length L
+#' from Katul and Parlange 1992 WWR
+#' @export
+length_L <- function(ustar, Hv, Ta,q)
+{
+    num=ustar^3
+    den=vonKarman()*g_acceleration()*(Hv/(mass_density_air()*spec_heat_cp_air(q)*Ta))
+    return(-num/den)
+}
 
 #' calculate aerodynamic resistance for natural surfaces
 #' from http://www.fao.org/docrep/x0490e/x0490e00.htm, Allen, Pereira, Raes, Smith, Crop evapotranspiration - Guidelines for computing crop water requirements - FAO Irrigation and drainage paper 56, FAO, Rome, 1998
@@ -69,47 +92,3 @@ res_stom <- function(h=0.12,rl=100,LAI=NULL)
         rs <- rl/LAIact
     return(rs)
 }
-
-#' calculates the potential et from mowene and van dam
-#' @param T mean daily temperature [K]
-#' @param q mean daily specific humidity [kg.kg^-1]
-#' @param p mean daily air pressure at reference height [kPa]
-#' @param vpd vapour pressure deficit at reference height [kPa]
-#' @param Rn net radiation [W.m^-2]
-#' @param G ground heat flux [W.m^-2]
-#' @importFrom micrometeo latent_heat_vap slope_sat_vpressure psychr spec_heat_cp_air mass_density_air
-#' @export
-penmon_day <- function(T,q,p,vpd,Rn,G,ra,rs)
-{
-    num1 = slope_sat_vpressure(T)*(Rn - G)
-    num2 = vpd *mass_density_air(T,q,p)*spec_heat_cp_air(q)/ra
-
-    den = slope_sat_vpressure(T) + psychr(p)*(1+rs/ra)
-
-    E = 24*60*60*(num1+num2)/den
-    return(E/latent_heat_vap())
-}
-
-
-#' calculates the Penman evapotranspiration from a water surface. from Moene and Van Dam, page 258
-#' @param T mean daily temperature [K]
-#' @param q mean daily specific humidity [kg.kg^-1]
-#' @param p mean daily air pressure at reference height [kPa]
-#' @param vpd vapour pressure deficit at reference height [kPa]
-#' @param Rn net radiation [W.m^-2]
-#' @param G ground heat flux [W.m^-2]
-#' @importFrom micrometeo latent_heat_vap slope_sat_vpressure psychr spec_heat_cp_air mass_density_air
-#' @export
-penman <- function(T,q,p,vpd,Rn,G,ra)
-{
-    den <- slope_sat_vpressure(T) + psychr(p)
-    num1 <- slope_sat_vpressure(T) * (Rn-G)
-#    num2 <- vpd*mass_density_air(T,q,p)*spec_heat()/ra
-
-    num2 <- vpd*mass_density_air(T,q,p)*spec_heat_cp_air(q)/ra
-
-    et <- 24*60*60*(num1/den+num2/den)/latent_heat_vap() # convert latent heat flux into [mm]
-    return(et)
-}
-
-#' Solves the Penman

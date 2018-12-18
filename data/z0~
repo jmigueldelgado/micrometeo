@@ -1,0 +1,17 @@
+surface,z0,d
+water,5.5*10^-4,NA
+smooth ice,10^-5,NA
+rough ice,5.5*10^-3,NA
+snow,5.5*10^-4,NA
+soils,0.002,NA
+short grass,0.01,NA
+long grass,0.04,0.2
+low mature crops,0.07,0.5
+high mature crops,0.15,1
+continuous bushland,0.3,2
+mature pine forest,1.2,14
+tropical forest,2,30
+deciduous forest, 0.8,7
+dense low buildings,0.6,3
+regularly build town, 1.2,10
+

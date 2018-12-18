@@ -178,7 +178,8 @@ rh2vpressure <- function(rh,T)
 #' @export
 rh2specific_hum <- function(rh,T,p)
 {
-    if(rh>1) rh <- 0.01*rh
+    
+    if(mean(rh)>1) rh <- 0.01*rh
 
     e <- rh*sat_vpressure(T)
     q <- vpressure2specific_hum(e,p)
